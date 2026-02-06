@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Engineering Roadmap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-green: #0aff0a;
+            --dark-bg: #0a0a0f;
+            --card-bg: rgba(20, 20, 30, 0.8);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Animated Background */
+        .bg-grid {
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 10s ease-in-out infinite;
+        }
+        
+        .glow-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--neon-purple), transparent);
+            top: 10%;
+            left: -10%;
+        }
+        
+        .glow-orb-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--neon-blue), transparent);
+            bottom: 10%;
+            right: -5%;
+            animation-delay: -5s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+        
+        /* Phase Cards */
+        .phase-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .phase-card:hover::before {
+            left: 100%;
+        }
+        
+        .phase-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+        }
+        
+        .phase-number {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Progress Line */
+        .progress-line {
+            position: fixed;
+            left: 30px;
+            top: 0;
+            width: 2px;
+            height: 0%;
+            background: linear-gradient(to bottom, var(--neon-blue), var(--neon-purple));
+            z-index: 50;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+        
+        .progress-dot {
+            position: fixed;
+            left: 26px;
+            width: 10px;
+            height: 10px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            z-index: 51;
+            box-shadow: 0 0 10px var(--neon-blue);
+            transition: top 0.3s;
+        }
+        
+        /* Skill Tags */
+        .skill-tag {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .skill-tag:hover {
+            background: rgba(0, 243, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        /* Checklist */
+        .check-item {
+            transition: all 0.3s;
+        }
+        
+        .check-item:hover {
+            color: var(--neon-green);
+            transform: translateX(5px);
+        }
+        
+        .check-item.completed {
+            color: var(--neon-green);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        
+        /* Mini Project Badge */
+        .project-badge {
+            background: linear-gradient(135deg, rgba(188, 19, 254, 0.2), rgba(0, 243, 255, 0.2));
+            border: 1px solid rgba(188, 19, 254, 0.5);
+        }
+        
+        /* Stack Icons */
+        .stack-icon {
+            transition: all 0.3s;
+        }
+        
+        .stack-icon:hover {
+            transform: translateY(-3px);
+            filter: drop-shadow(0 0 8px var(--neon-blue));
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--neon-blue), var(--neon-purple));
+            border-radius: 4px;
+        }
+        
+        /* Glitch Effect for Title */
+        .glitch {
+            position: relative;
+            animation: glitch-skew 1s infinite;
+        }
+        
+        @keyframes glitch-skew {
+            0% { transform: skew(0deg); }
+            20% { transform: skew(-2deg); }
+            40% { transform: skew(2deg); }
+            60% { transform: skew(0deg); }
+            100% { transform: skew(0deg); }
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .progress-line, .progress-dot {
+                left: 15px;
+            }
+            .phase-card {
+                margin-left: 40px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Background Elements -->
+    <div class="bg-grid"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    
+    <!-- Progress Indicator -->
+    <div class="progress-line" id="progressLine"></div>
+    <div class="progress-dot" id="progressDot" style="top: 0;"></div>
+
+    <!-- Header -->
+    <header class="min-h-screen flex items-center justify-center relative px-4">
+        <div class="text-center max-w-4xl mx-auto">
+            <div class="mb-6 inline-block">
+                <span class="font-mono text-sm text-cyan-400 tracking-widest uppercase border border-cyan-400/30 px-4 py-2 rounded-full">
+                    Interactive Roadmap 2025
+                </span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 glitch">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500">
+                    AI Agent Engineering
+                </span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+                Master the art of building autonomous AI systems. From Python basics to production-grade multi-agent platforms.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <span class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+                    7 Phases
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
+                    7 Projects
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    Production Ready
+                </div>
+            </div>
+            <button onclick="scrollToPhase(0)" class="group relative px-8 py-4 bg-transparent border border-cyan-400 text-cyan-400 font-mono font-bold rounded-lg overflow-hidden transition-all hover:text-black">
+                <span class="absolute inset-0 bg-cyan-400 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
+                <span class="relative z-10">Start Journey ↓</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 pb-32 relative">
+        
+        <!-- Phase 1 -->
+        <div class="phase-section mb-16" data-phase="1">
+            <div class="phase-card rounded-2xl p-8 md:p-12">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="md:w-1/3">
+                        <span class="phase-number text-6xl font-bold font-mono block mb-2">01</span>
+                        <h2 class="text-3xl font-bold text-white mb-4">Strong Foundations</h2>
+                        <div class="project-badge rounded-lg p-4 mt-6">
+                            <p class="text-sm font-mono text-purple-300 mb-1">OUTCOME</p>
+                            <p class="text-white font-semibold">Call LLM APIs & build simple apps</p>
+                        </div>
+                    </div>
+                    <div class="md:w-2/3 space-y-6">
+                        <div>
+                            <h3 class="text-cyan-400 font-mono text-sm uppercase tracking-wider mb-3">Programming</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="skill-tag px-3 py-1 rounded-full text-sm cursor-pointer" onclick="toggleCheck(this)">Python (async, typing, OOP)</span>
+                                <span class="skill-tag px-3 py-1 rounded-full text-sm cursor-pointer" onclick="toggleCheck(this)">Git</span>
+                                <span class="skill-tag px-3 py-1 rounded-full text-sm cursor-pointer" onclick="toggleCheck(this)">Linux basics</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-cyan-400 font-mono text-sm uppercase tracking-wider mb-3">AI Basics</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="skill-tag px-3 py-1 rounded-full text-sm cursor-pointer" onclick="toggleCheck(this)">Transformers</span>
+                                <span class="skill-tag px-3 py-1 rounded-full text-sm cursor-pointer" onclick="toggleCheck(this)">Embeddings</span>
+                                <span class="skill-tag px-3 py-1 rounded-full text-sm cursor-pointer" onclick="toggleCheck(this)">Prompt engineering</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-cyan-400 font-mono text-sm uppercase tracking-wider mb-3">Math (Light)</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="skill-tag px-3 py-1 rounded-full text-sm cursor-pointer" onclick="toggleCheck(this)">Linear algebra intuition</span>
+                                <span class="skill-tag px-3 py-1 rounded-full text-sm cursor-pointer" onclick="toggleCheck(this)">Probability</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase-section mb-16" data-phase="2">
+            <div class="phase-card rounded-2xl p-8 md:p-12">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="md:w-1/3">
+                        <span class="phase-number text-6xl font-bold font-mono block mb-2">02</span>
+                        <h2 class="text-3xl font-bold text-white mb-4">LLM Engineering</h2>
+                        <div class="project-badge rounded-lg p-4 mt-6 border-cyan-500/50">
+                            <p class="text-sm font-mono text-cyan-300 mb-1">MINI PROJECT</p>
+                            <p class="text-white font-semibold">Chatbot with memory + tools</p>
+                        </div>
+                    </div>
+                    <div class="md:w-2/3 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>OpenAI / Open-source LLMs</span>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Prompt templates</span>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Function calling / Tool calling</span>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Embedding generation</span>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Vector databases (FAISS / Chroma)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase-section mb-16" data-phase="3">
+            <div class="phase-card rounded-2xl p-8 md:p-12">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="md:w-1/3">
+                        <span class="phase-number text-6xl font-bold font-mono block mb-2">03</span>
+                        <h2 class="text-3xl font-bold text-white mb-4">RAG Systems</h2>
+                        <div class="project-badge rounded-lg p-4 mt-6">
+                            <p class="text-sm font-mono text-purple-300 mb-1">MINI PROJECT</p>
+                            <p class="text-white font-semibold">Document Q&A system</p>
+                        </div>
+                    </div>
+                    <div class="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Chunking strategies</span>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Hybrid search</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Metadata filtering</span>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Multimodal RAG (text + image)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="phase-section mb-16" data-phase="4">
+            <div class="phase-card rounded-2xl p-8 md:p-12">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="md:w-1/3">
+                        <span class="phase-number text-6xl font-bold font-mono block mb-2">04</span>
+                        <h2 class="text-3xl font-bold text-white mb-4">Agent Fundamentals</h2>
+                        <div class="project-badge rounded-lg p-4 mt-6 border-cyan-500/50">
+                            <p class="text-sm font-mono text-cyan-300 mb-1">MINI PROJECT</p>
+                            <p class="text-white font-semibold">Autonomous research agent</p>
+                        </div>
+                    </div>
+                    <div class="md:w-2/3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <h3 class="text-cyan-400 font-mono text-sm uppercase tracking-wider mb-3">Core Concepts</h3>
+                                <div class="space-y-2">
+                                    <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                        <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                            <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                        <span>Planning + reasoning loops</span>
+                                    </div>
+                                    <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                        <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                            <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                        <span>ReAct pattern</span>
+                                    </div>
+                                    <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                        <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                            <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                        <span>Tool orchestration</span>
+                                    </div>
+                                    <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                        <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                            <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                        <span>State machines</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-purple-400 font-mono text-sm uppercase tracking-wider mb-3">Libraries</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg text-purple-300 font-mono text-sm">LangGraph</span>
+                                    <span class="px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg text-purple-300 font-mono text-sm">CrewAI</span>
+                                    <span class="px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg text-purple-300 font-mono text-sm">AutoGen</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 5 -->
+        <div class="phase-section mb-16" data-phase="5">
+            <div class="phase-card rounded-2xl p-8 md:p-12">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="md:w-1/3">
+                        <span class="phase-number text-6xl font-bold font-mono block mb-2">05</span>
+                        <h2 class="text-3xl font-bold text-white mb-4">Multi-Agent Systems</h2>
+                        <div class="project-badge rounded-lg p-4 mt-6">
+                            <p class="text-sm font-mono text-purple-300 mb-1">MINI PROJECT</p>
+                            <p class="text-white font-semibold">AI Software Team (PM, Dev, QA)</p>
+                        </div>
+                    </div>
+                    <div class="md:w-2/3">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="check-item flex items-center gap-3 cursor-pointer p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <div>
+                                    <span class="font-semibold block">Role-based agents</span>
+                                    <span class="text-sm text-gray-400">Define specialized agent personas and responsibilities</span>
+                                </div>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <div>
+                                    <span class="font-semibold block">Delegation & feedback loops</span>
+                                    <span class="text-sm text-gray-400">Implement hierarchical task distribution and review cycles</span>
+                                </div>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <div>
+                                    <span class="font-semibold block">Memory sharing</span>
+                                    <span class="text-sm text-gray-400">Shared context and state across agent boundaries</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 6 -->
+        <div class="phase-section mb-16" data-phase="6">
+            <div class="phase-card rounded-2xl p-8 md:p-12">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="md:w-1/3">
+                        <span class="phase-number text-6xl font-bold font-mono block mb-2">06</span>
+                        <h2 class="text-3xl font-bold text-white mb-4">Learning Agents</h2>
+                        <div class="project-badge rounded-lg p-4 mt-6 border-cyan-500/50">
+                            <p class="text-sm font-mono text-cyan-300 mb-1">MINI PROJECT</p>
+                            <p class="text-white font-semibold">Agent that improves its own prompts</p>
+                        </div>
+                    </div>
+                    <div class="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Reinforcement Learning basics</span>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Reward shaping</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Self-reflection</span>
+                            </div>
+                            <div class="check-item flex items-center gap-3 cursor-pointer" onclick="toggleComplete(this)">
+                                <div class="w-5 h-5 border border-cyan-400 rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span>Fine-tuning</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 7 -->
+        <div class="phase-section mb-16" data-phase="7">
+            <div class="phase-card rounded-2xl p-8 md:p-12 border-cyan-400/50 shadow-[0_0_30px_rgba(0,243,255,0.1)]">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="md:w-1/3">
+                        <span class="phase-number text-6xl font-bold font-mono block mb-2">07</span>
+                        <h2 class="text-3xl font-bold text-white mb-4">Productionization</h2>
+                        <div class="project-badge rounded-lg p-4 mt-6 bg-gradient-to-r from-cyan-500/20 to-purple-500/20">
+                            <p class="text-sm font-mono text-cyan-300 mb-1">MINI PROJECT</p>
+                            <p class="text-white font-semibold">Deploy agent platform</p>
+                        </div>
+                    </div>
+                    <div class="md:w-2/3">
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="check-item flex flex-col items-center gap-2 p-4 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10 transition-all" onclick="toggleComplete(this)">
+                                <div class="w-8 h-8 border border-cyan-400 rounded flex items-center justify-center mb-1">
+                                    <svg class="w-4 h-4 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold">FastAPI</span>
+                                <span class="text-xs text-gray-400">Backends</span>
+                            </div>
+                            <div class="check-item flex flex-col items-center gap-2 p-4 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10 transition-all" onclick="toggleComplete(this)">
+                                <div class="w-8 h-8 border border-cyan-400 rounded flex items-center justify-center mb-1">
+                                    <svg class="w-4 h-4 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold">Docker</span>
+                                <span class="text-xs text-gray-400">Containerization</span>
+                            </div>
+                            <div class="check-item flex flex-col items-center gap-2 p-4 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10 transition-all" onclick="toggleComplete(this)">
+                                <div class="w-8 h-8 border border-cyan-400 rounded flex items-center justify-center mb-1">
+                                    <svg class="w-4 h-4 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold">Observability</span>
+                                <span class="text-xs text-gray-400">Monitoring</span>
+                            </div>
+                            <div class="check-item flex flex-col items-center gap-2 p-4 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10 transition-all" onclick="toggleComplete(this)">
+                                <div class="w-8 h-8 border border-cyan-400 rounded flex items-center justify-center mb-1">
+                                    <svg class="w-4 h-4 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold">Caching</span>
+                                <span class="text-xs text-gray-400">Performance</span>
+                            </div>
+                            <div class="check-item flex flex-col items-center gap-2 p-4 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10 transition-all col-span-2 md:col-span-2" onclick="toggleComplete(this)">
+                                <div class="w-8 h-8 border border-cyan-400 rounded flex items-center justify-center mb-1">
+                                    <svg class="w-4 h-4 text-green-400 opacity-0 check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold">Security</span>
+                                <span class="text-xs text-gray-400">Auth, Rate limiting, PII protection</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Stack Section -->
+        <div class="mt-24 mb-16">
+            <h2 class="text-3xl font-bold text-center mb-12">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
+                    Suggested Tech Stack
+                </span>
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                <div class="stack-icon group p-6 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-400/50 text-center cursor-pointer">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🐍</div>
+                    <div class="font-mono font-bold text-cyan-400">Python</div>
+                </div>
+                <div class="stack-icon group p-6 rounded-xl bg-white/5 border border-white/10 hover:border-purple-400/50 text-center cursor-pointer">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🦜</div>
+                    <div class="font-mono font-bold text-purple-400">LangGraph</div>
+                    <div class="text-xs text-gray-500 mt-1">/ CrewAI</div>
+                </div>
+                <div class="stack-icon group p-6 rounded-xl bg-white/5 border border-white/10 hover:border-green-400/50 text-center cursor-pointer">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🔍</div>
+                    <div class="font-mono font-bold text-green-400">FAISS</div>
+                    <div class="text-xs text-gray-500 mt-1">/ Chroma</div>
+                </div>
+                <div class="stack-icon group p-6 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-400/50 text-center cursor-pointer">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">⚡</div>
+                    <div class="font-mono font-bold text-cyan-400">FastAPI</div>
+                </div>
+                <div class="stack-icon group p-6 rounded-xl bg-white/5 border border-white/10 hover:border-blue-400/50 text-center cursor-pointer">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🐳</div>
+                    <div class="font-mono font-bold text-blue-400">Docker</div>
+                </div>
+                <div class="stack-icon group p-6 rounded-xl bg-white/5 border border-white/10 hover:border-blue-300/50 text-center cursor-pointer">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🐘</div>
+                    <div class="font-mono font-bold text-blue-300">PostgreSQL</div>
+                </div>
+                <div class="stack-icon group p-6 rounded-xl bg-white/5 border border-white/10 hover:border-red-400/50 text-center cursor-pointer col-span-2 md:col-span-1">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">⚡</div>
+                    <div class="font-mono font-bold text-red-400">Redis</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Stats -->
+        <div class="fixed bottom-8 right-8 bg-black/80 backdrop-blur-md border border-cyan-400/30 rounded-lg p-4 hidden md:block z-50">
+            <div class="text-xs font-mono text-gray-400 mb-1">PROGRESS</div>
+            <div class="text-2xl font-bold text-cyan-400" id="progressPercent">0%</div>
+            <div class="w-32 h-1 bg-gray-700 rounded-full mt-2 overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 transition-all duration-300" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Initialize GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Animate cards on scroll
+        document.querySelectorAll('.phase-card').forEach((card, index) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 85%",
+                    toggleActions: "play none none reverse"
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                delay: index * 0.1,
+                ease: "power3.out"
+            });
+        });
+
+        // Progress line animation
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            
+            document.getElementById('progressLine').style.height = scrolled + "%";
+            document.getElementById('progressDot').style.top = scrolled + "%";
+            
+            updateProgressStats();
+        });
+
+        // Toggle completion
+        function toggleComplete(element) {
+            element.classList.toggle('completed');
+            const icon = element.querySelector('.check-icon');
+            if (element.classList.contains('completed')) {
+                icon.classList.remove('opacity-0');
+                // Add particle effect
+                createParticles(element);
+            } else {
+                icon.classList.add('opacity-0');
+            }
+            updateProgressStats();
+            saveProgress();
+        }
+
+        function toggleCheck(element) {
+            element.classList.toggle('bg-cyan-400');
+            element.classList.toggle('text-black');
+            element.classList.toggle('border-cyan-400');
+            saveProgress();
+        }
+
+        // Particle effect
+        function createParticles(element) {
+            const rect = element.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'fixed w-2 h-2 bg-green-400 rounded-full pointer-events-none z-50';
+                particle.style.left = rect.left + rect.width / 2 + 'px';
+                particle.style.top = rect.top + rect.height / 2 + 'px';
+                document.body.appendChild(particle);
+                
+                gsap.to(particle, {
+                    x: (Math.random() - 0.5) * 100,
+                    y: (Math.random() - 0.5) * 100,
+                    opacity: 0,
+                    duration: 0.6,
+                    onComplete: () => particle.remove()
+                });
+            }
+        }
+
+        // Calculate and update progress
+        function updateProgressStats() {
+            const checkItems = document.querySelectorAll('.check-item');
+            const completed = document.querySelectorAll('.check-item.completed');
+            const percent = Math.round((completed.length / checkItems.length) * 100);
+            
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+
+        // Save to localStorage
+        function saveProgress() {
+            const completed = [];
+            document.querySelectorAll('.check-item').forEach((item, index) => {
+                if (item.classList.contains('completed')) {
+                    completed.push(index);
+                }
+            });
+            localStorage.setItem('aiRoadmapProgress', JSON.stringify(completed));
+        }
+
+        // Load from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('aiRoadmapProgress');
+            if (saved) {
+                const completed = JSON.parse(saved);
+                document.querySelectorAll('.check-item').forEach((item, index) => {
+                    if (completed.includes(index)) {
+                        item.classList.add('completed');
+                        item.querySelector('.check-icon').classList.remove('opacity-0');
+                    }
+                });
+                updateProgressStats();
+            }
+        }
+
+        // Scroll to phase
+        function scrollToPhase(index) {
+            const phases = document.querySelectorAll('.phase-section');
+            if (phases[index]) {
+                phases[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Initialize
+        loadProgress();
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'j' || e.key === 'J') {
+                window.scrollBy({ top: 200, behavior: 'smooth' });
+            } else if (e.key === 'k' || e.key === 'K') {
+                window.scrollBy({ top: -200, behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
